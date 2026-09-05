@@ -6,6 +6,7 @@ These instructions are for the agent setting up Ticket Recall in a software proj
 
 The project contains these skill folders under `.agents/skills`:
 
+- `ticket-tracker-identify`
 - `ticket-update`
 - `ticket-reconstruct`
 - `ticket-review`
@@ -14,23 +15,30 @@ If the current agent harness discovers Agent Skills from `.agents/skills`, use t
 
 ## 2. Identify the tracker and operating system
 
-Inspect repository remotes, issue templates, contribution docs, existing ticket links, and user-supplied context.
+Keep the identification procedure in this installation guide even though `ticket-tracker-identify` provides the same behavior after installation. During initial setup, the skills may not be available yet.
+
+Inspect repository remotes, issue templates, contribution docs, existing ticket links, project configuration, and user-supplied context. Also check whether `gh` and `acli` are already installed; check both independently so CLI availability can inform the inference.
 
 - Use `gh` for GitHub Issues.
 - Use `acli` for Jira Cloud.
-- An installed CLI is only a clue; it does not prove which tracker the project uses.
-- If the tracker is ambiguous, ask the user whether the team uses GitHub Issues or Jira before installing anything.
+- Existing project configuration and explicit ticket links are stronger evidence than CLI availability.
+- If `acli` is already installed, treat Jira as highly likely unless stronger project evidence points elsewhere.
+- If only `gh` is installed, GitHub Issues is a reasonable best guess, but do not assume that the project uses it.
+
+Always confirm the inferred tracker with the user before installing, authenticating, or verifying access. State the best guess, the strongest evidence for it, and the confidence level, then ask for confirmation of that guess rather than asking an open-ended "GitHub Issues or Jira?" question. For example: "My best guess is GitHub Issues because this is a GitHub-hosted repository and only `gh` is installed. I am moderately confident because I found no explicit issue configuration. Should I proceed with GitHub Issues?"
+
+If the user rejects the guess or identifies the other tracker, adopt that correction immediately. In particular, if the initial guess is GitHub Issues and the user says the project uses Jira, continue setup using `acli`: check whether it is installed, request permission before installing it if needed, then authenticate and verify the Jira project. Do not defend the original inference or repeat the tracker-selection question.
 
 Detect whether the machine runs Windows, macOS, or Linux and which package manager is available. Assume a capable package manager is already installed; do not install or configure a package manager.
 
-Check whether the selected CLI already exists:
+Check whether both tracker CLIs exist as part of the inference:
 
 ```sh
 gh --version
 acli --version
 ```
 
-Run only the command for the selected tracker. If the CLI is already installed, skip installation.
+A command-not-found result only means that CLI is unavailable; it is not evidence that the corresponding tracker is unused. After the user confirms the tracker, continue only with that tracker's CLI. If it is already installed, skip installation.
 
 ## 3. Ask permission before installing
 

@@ -6,6 +6,7 @@ Ticket Recall is a portable set of agent skills for keeping software tickets use
 
 | Skill | Purpose |
 | --- | --- |
+| `ticket-tracker-identify` | Infer whether the project uses GitHub Issues or Jira and confirm the best guess with the user. |
 | `ticket-update` | Update a ticket at any point using context supplied and confirmed by the user. |
 | `ticket-reconstruct` | Recover missing documentation from implementation and test evidence without confusing observed behavior with original intent. |
 | `ticket-review` | Identify missing, stale, contradictory, or unsupported ticket information without changing the ticket. |
@@ -17,5 +18,5 @@ Each skill lives in `.agents/skills/<skill-name>/SKILL.md`. A harness that suppo
 Copy this single prompt into your agent while it is working in the software project whose tickets you want to maintain:
 
 ```text
-Install Ticket Recall in the current software project from https://github.com/jayderelo/ticket-recall. Retrieve that repository into a temporary location and read its README.md and INSTALL.md completely. Copy only the ticket-update, ticket-reconstruct, and ticket-review skill folders from its .agents/skills directory into this project's .agents/skills directory; do not copy the repository-level README.md or INSTALL.md into this project. Then follow the retrieved INSTALL.md to detect this project's ticket tracker and operating system, request my permission before installing any required CLI, complete authentication with my participation, and verify read-only access to the correct GitHub repository or Jira project. Stop after setup without changing any ticket, and report what was installed, configured, and verified.
+Fetch and immediately read https://github.com/jayderelo/ticket-recall/blob/main/INSTALL.md completely, then follow its instructions to install Ticket Recall in the current software project.
 ```
