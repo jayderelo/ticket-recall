@@ -161,7 +161,9 @@ acli --version
 
 ## 6. Authenticate with user participation
 
-Authentication is interactive. Never ask the user to paste a password or token into chat, print secrets, or store secrets in the project.
+Authentication requires user participation. Never ask the user to paste a password or token into chat, print secrets, or store secrets in the project. For token authentication, use a temporary file outside the project and delete it after successful authentication.
+
+On native Windows, run `gh` and `acli jira` commands outside the sandbox from the first attempt so they can access the current user's Windows keyring. A sandboxed authentication failure does not establish that the user is unauthenticated.
 
 ### GitHub
 
@@ -187,13 +189,37 @@ Check status:
 acli jira auth status
 ```
 
-If authentication is required, tell the user a browser-based login will begin, then run:
+After installing `acli` (or confirming it is already installed), if authentication is required, ask the user which authentication option they prefer: web login or API token. Wait for their choice before starting either flow.
+
+#### Web login
+
+Tell the user a browser-based login will begin, then run:
 
 ```sh
 acli jira auth login --web
 ```
 
-Tell the user to complete browser consent and select the same Jira site in the terminal. Verify again with `acli jira auth status`. If Atlassian reports that a site administrator must authorize the application, stop and report that administrator action is required.
+Tell the user to complete browser consent and select the same Jira site in the terminal. Verify again with `acli jira auth status`, then continue with step 7. If Atlassian reports that a site administrator must authorize the application, stop and report that administrator action is required.
+
+#### API token login
+
+1. Ask the user for their Jira site (for example, `mysite.atlassian.net`) and Atlassian account email (for example, `user@atlassian.com`).
+2. Create an empty `token.txt` in a newly created temporary directory outside the project. Use the operating system's temporary directory and avoid overwriting an existing file.
+3. Give the user the exact file path and ask them to enter their API token in that file and save it. Wait for the user to confirm that it is saved. Do not read or display the token in chat or command output.
+4. Run the following command from that temporary directory, replacing the example site and email with the values supplied by the user:
+
+   ```sh
+   acli jira auth login --site "mysite.atlassian.net" --email "user@atlassian.com" --token < token.txt
+   ```
+
+   PowerShell does not support `<` input redirection. On Windows PowerShell, pipe the file contents to the command instead:
+
+   ```powershell
+   Get-Content -Raw -LiteralPath ./token.txt | acli jira auth login --site "mysite.atlassian.net" --email "user@atlassian.com" --token
+   ```
+
+5. Verify authentication with `acli jira auth status`. If authentication fails, resolve the failure with the user before continuing; never print the token while troubleshooting.
+6. After successful authentication, delete `token.txt` and the temporary directory created for it, then continue with step 7. If setup is abandoned before authentication succeeds, delete the temporary token file and directory before stopping.
 
 ## 7. Verify the correct project with read-only commands
 
